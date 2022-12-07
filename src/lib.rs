@@ -1,9 +1,10 @@
 // Based on: https://stackoverflow.com/questions/6737283/weighted-randomness-in-java
 
-use std::{fmt::Debug,collections::{BTreeMap, BTreeSet}};
+use std::{fmt::Debug,collections::BTreeMap};
 use ordered_float::OrderedFloat;
 use rand::Rng;
 
+#[derive(Clone, Debug)]
 pub struct Distribution<T> {
     distro: BTreeMap<OrderedFloat<f64>, T>,
     total_weight: f64,
@@ -28,10 +29,10 @@ impl <T:Clone + PartialEq + Eq + PartialOrd + Ord + Debug> Distribution<T> {
         self.distro.get(&key_picked.unwrap()).unwrap().clone()
     }
 
-    pub fn without(&self, removals: BTreeSet<T>) -> Self {
+    pub fn distro_with<F:Fn(&T)->bool>(&self, keep: F) -> Self {
         let mut result = Distribution::new();
         for (value, weight) in self.originals.iter() {
-            if !removals.contains(value) {
+            if keep(value) {
                 result.add(value, *weight);
             }
         }
@@ -100,9 +101,8 @@ mod tests {
     }
 
     #[test]
-    fn test_without() {
-        let dist = example_dist();
-        let dist = dist.without(["a".to_owned(), "c".to_owned()].iter().cloned().collect());
+    fn test_with() {
+        let dist = example_dist().distro_with(|s| s.chars().next().unwrap() as usize % 2 == 0);
         let matched = num_match_target(&dist, 20, 200, vec!["d".to_owned(), "b".to_owned()]);
         assert_eq!(matched, 20);
     }
