@@ -16,6 +16,10 @@ impl <T:Clone + PartialEq + Eq + PartialOrd + Ord + Debug> Distribution<T> {
         Distribution {distro: BTreeMap::new(), total_weight: 0.0, originals: BTreeMap::new()}
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.total_weight == 0.0
+    }
+
     pub fn add(&mut self, value: &T, weight: f64) {
         assert!(weight > 0.0);
         self.distro.insert(OrderedFloat(self.total_weight), value.clone());
@@ -24,7 +28,7 @@ impl <T:Clone + PartialEq + Eq + PartialOrd + Ord + Debug> Distribution<T> {
     }
 
     pub fn random_pick(&self) -> T {
-        assert!(self.total_weight > 0.0);
+        assert!(!self.is_empty());
         let mut rng = rand::thread_rng();
         let key_picked = closest_key_below(&self.distro, rng.gen_range(0.0..self.total_weight));
         self.distro.get(&key_picked.unwrap()).unwrap().clone()
