@@ -24,6 +24,7 @@ impl <T:Clone + PartialEq + Eq + PartialOrd + Ord + Debug> Distribution<T> {
     }
 
     pub fn random_pick(&self) -> T {
+        assert!(self.total_weight > 0.0);
         let mut rng = rand::thread_rng();
         let key_picked = closest_key_below(&self.distro, rng.gen_range(0.0..self.total_weight));
         self.distro.get(&key_picked.unwrap()).unwrap().clone()
