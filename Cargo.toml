@@ -10,4 +10,4 @@ ordered-float = "3"
 rand = "0.8"
 
 [dev-dependencies]
-hash_histogram = "0.6"
+hash_histogram = "0.7"
